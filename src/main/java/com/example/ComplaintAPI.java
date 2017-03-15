@@ -2,12 +2,15 @@ package com.example;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author firoz
@@ -26,8 +29,11 @@ public class ComplaintAPI {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<String> fileComplaint(@RequestBody FileComplaint fileComplaint) {
-        return commandGateway.send(fileComplaint);
+    public ResponseEntity<ComplaintQueryObject> fileComplaint(@RequestBody FileComplaint fileComplaint) throws ExecutionException, InterruptedException {
+        CompletableFuture<String> future = commandGateway.send(fileComplaint);
+        return Optional.of(complaintsQueryObjectRepository.findOne(future.get()))
+                .map(r -> ResponseEntity.ok(r))
+                .orElseThrow(() -> new RuntimeException("Did not go well"));
     }
 
     @GetMapping
