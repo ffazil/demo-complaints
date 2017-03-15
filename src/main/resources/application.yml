@@ -1,0 +1,8 @@
+axon:
+  amqp:
+    exchange: Complaints
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2
